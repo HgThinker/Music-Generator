@@ -1,0 +1,7 @@
+README.md
+setup.py
+Music_Generator.egg-info/PKG-INFO
+Music_Generator.egg-info/SOURCES.txt
+Music_Generator.egg-info/dependency_links.txt
+Music_Generator.egg-info/requires.txt
+Music_Generator.egg-info/top_level.txt
