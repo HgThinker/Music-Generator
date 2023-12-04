@@ -117,10 +117,10 @@ def train(
     batch_size: int = 10,
     use_cfg: bool = False
 ):
-    os.system("wandb login 211aeb23439c9b5a37b08e1feced8296a50199bb")
-    os.environ["WANDB_PROJECT"] = "Music-Generator"
+    # os.system("wandb login 211aeb23439c9b5a37b08e1feced8296a50199bb")
+    # os.environ["WANDB_PROJECT"] = "Music-Generator"
     if use_wandb:
-        run = wandb.run
+        run = wandb.init(project="Music-Generator")
 
     model = MusicGen.get_pretrained(model_id)
     model.lm = model.lm.to(torch.float32)  # important
@@ -129,6 +129,7 @@ def train(
     train_dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
     learning_rate = lr
+    wandb.watch(model)
     model.lm.train()
 
     scaler = torch.cuda.amp.GradScaler()
