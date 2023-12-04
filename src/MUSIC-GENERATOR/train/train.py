@@ -137,7 +137,6 @@ def train(
 
     learning_rate = lr
     
-    model.lm.train()
 
     scaler = torch.cuda.amp.GradScaler()
 
@@ -177,6 +176,7 @@ def train(
     current_step = 0
 
     for epoch in range(num_epochs):
+        model.lm.train()
         for batch_idx, (audio, label) in enumerate(train_dataloader):
             optimizer.zero_grad()
 
