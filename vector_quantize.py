@@ -57,3 +57,4 @@ class VectorQuantizer(nn.Module):
         min_encoding_indices = min_encoding_indices.view(z.shape[:-1])
 
         return z_q, loss, min_encoding_indices
+

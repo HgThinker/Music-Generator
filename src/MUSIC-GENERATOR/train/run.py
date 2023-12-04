@@ -21,7 +21,7 @@ train(
     model_id=args.model_id,
     lr=args.lr,
     epochs=args.epochs,
-    use_wandb=args.use_wandb,
+    use_wandb=args.use_wandb, 
     save_step=args.save_step,
     no_label=args.no_label,
     tune_text=args.tune_text,
@@ -31,3 +31,4 @@ train(
     batch_size=args.batch_size,
     use_cfg=args.use_cfg,
 )
+

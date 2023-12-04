@@ -247,6 +247,7 @@ def train(
                     }
                 )
 
+
             print(
                 f"Epoch: {epoch}/{num_epochs}, Batch: {batch_idx}/{len(train_dataloader)}, Loss: {loss.item()}"
             )

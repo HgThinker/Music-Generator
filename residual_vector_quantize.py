@@ -23,6 +23,7 @@ class ResidualVectorQuantizer(nn.Module):
             codebook = quantizer.get_codebook()
             all_codebook.append(codebook)
         return torch.stack(all_codebook)
+    
 
     def forward(self, z):
         all_losses = []
