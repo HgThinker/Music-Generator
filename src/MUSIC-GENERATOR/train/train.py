@@ -168,7 +168,6 @@ def train(
     current_step = 0
 
     for epoch in range(num_epochs):
-        print(epoch)
         for batch_idx, (audio, label) in enumerate(train_dataloader):
             optimizer.zero_grad()
 
@@ -187,7 +186,7 @@ def train(
                     codes = inner_audio
 
                 all_codes.append(codes)
-                texts.append(open(l, "r").read().strip())
+                texts.append(l)
 
             attributes, _ = model._prepare_tokens_and_attributes(texts, None)
             conditions = attributes
@@ -203,7 +202,7 @@ def train(
 
             codes = torch.cat(all_codes, dim=0)
 
-            with torch.autocast(device_type="cuda", dtype=torch.float16):
+            with torch.autocast(device_type=device, dtype=torch.float16):
                 lm_output = model.lm.compute_predictions(
                     codes=codes, conditions=[], condition_tensors=condition_tensors
                 )
