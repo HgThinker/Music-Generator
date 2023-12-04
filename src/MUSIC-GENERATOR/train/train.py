@@ -119,6 +119,8 @@ def train(
 ):
     os.system("wandb login 211aeb23439c9b5a37b08e1feced8296a50199bb")
     # os.environ["WANDB_PROJECT"] = "Music-Generator"
+    model = MusicGen.get_pretrained(model_id)
+    model.lm = model.lm.to(torch.float32)# important
     if use_wandb:
         run = wandb.init(project="Music-Generator",
                          name=f"Music-Generator_v1",
@@ -128,9 +130,6 @@ def train(
                             "lr": lr,
                         })
         wandb.watch(model)
-
-    model = MusicGen.get_pretrained(model_id)
-    model.lm = model.lm.to(torch.float32)  # important
 
     dataset = AudioDataset()
     train_dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
