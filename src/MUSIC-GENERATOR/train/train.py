@@ -275,5 +275,5 @@ def train(
                     torch.save(
                         model.lm.state_dict(), f"{save_path}/lm_{current_step}.pt"
                     )
-
+    wandb.finish()
     torch.save(model.lm.state_dict(), f"{save_path}/lm_final.pt")
