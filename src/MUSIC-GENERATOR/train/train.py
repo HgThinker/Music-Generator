@@ -186,7 +186,7 @@ def train(
                     codes = inner_audio
 
                 all_codes.append(codes)
-                texts.append(open(l, "r").read().strip())
+                texts.append(l)
 
             attributes, _ = model._prepare_tokens_and_attributes(texts, None)
             conditions = attributes
