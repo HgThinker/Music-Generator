@@ -62,10 +62,20 @@ def count_nans(tensor):
 def preprocess_audio(audio_path, model: MusicGen, duration: int = 10):
     wav, sr = torchaudio.load(audio_path)
     wav = torchaudio.functional.resample(wav, sr, model.sample_rate)
+    
+    # Chuẩn hóa âm lượng
+    transform = torchaudio.transforms.AmplitudeToDB(stype="amplitude", top_db=80)
+    wav = transform(wav)
+    
     wav = wav.mean(dim=0, keepdim=True)
     if wav.shape[1] < model.sample_rate * duration:
         return None
+    
+    
     end_sample = int(model.sample_rate * duration)
+    
+   
+        
     start_sample = random.randrange(0, max(wav.shape[1] - end_sample, 1))
     wav = wav[:, start_sample : start_sample + end_sample]
 
