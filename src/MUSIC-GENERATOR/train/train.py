@@ -121,6 +121,7 @@ def train(
     # os.environ["WANDB_PROJECT"] = "Music-Generator"
     if use_wandb:
         run = wandb.init(project="Music-Generator")
+        wandb.watch(model)
 
     model = MusicGen.get_pretrained(model_id)
     model.lm = model.lm.to(torch.float32)  # important
@@ -129,7 +130,7 @@ def train(
     train_dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
     learning_rate = lr
-    wandb.watch(model)
+    
     model.lm.train()
 
     scaler = torch.cuda.amp.GradScaler()
