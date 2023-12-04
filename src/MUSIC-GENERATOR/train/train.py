@@ -22,7 +22,8 @@ class AudioDataset(Dataset):
         self.data_map = []
 
         path_root = os.getcwd()
-        self.data_dir = os.path.abspath(os.path.join(path_root ,"data/music_data"))
+        # self.data_dir = os.path.abspath(os.path.join(path_root ,"../..","data/music_data")) ##for colab
+        self.data_dir = os.path.abspath(os.path.join(path_root ,"data/music_data")) #for vsc
         files = [f for f in os.listdir(self.data_dir ) if f.endswith(".wav")]
         files_name = [os.path.splitext(name)[0] for name in files]
         ds = load_dataset('HgThinker/Music_Gen', split='train').remove_columns(['start_s',
@@ -37,7 +38,7 @@ class AudioDataset(Dataset):
             self.data_map.append(
                 {
                     "audio": os.path.abspath(os.path.join(self.data_dir,row['ytid']+".wav")),
-                    "label": row['caption']+row['aspect_list'],
+                    "label": row['caption']+ ' '.join([str(elem) for elem in row['aspect_list']]),
                 }
             )
 
@@ -58,7 +59,7 @@ def count_nans(tensor):
     return num_nans
 
 
-def preprocess_audio(audio_path, model: MusicGen, duration: int = 30):
+def preprocess_audio(audio_path, model: MusicGen, duration: int = 10):
     wav, sr = torchaudio.load(audio_path)
     wav = torchaudio.functional.resample(wav, sr, model.sample_rate)
     wav = wav.mean(dim=0, keepdim=True)
@@ -196,7 +197,7 @@ def train(
             tokenized = model.lm.condition_provider.tokenize(conditions)
             cfg_conditions = model.lm.condition_provider(tokenized)
             condition_tensors = cfg_conditions
-
+            print(len(all_codes))
             if len(all_codes) == 0:
                 continue
 
