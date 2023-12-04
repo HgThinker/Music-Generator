@@ -22,7 +22,7 @@ class AudioDataset(Dataset):
         self.data_map = []
 
         path_root = os.getcwd()
-        self.data_dir = os.path.abspath(os.path.join(path_root ,"../..","data\music_data"))
+        self.data_dir = os.path.abspath(os.path.join(path_root ,"data\music_data"))
         files = [f for f in os.listdir(self.data_dir ) if f.endswith(".wav")]
         files_name = [os.path.splitext(name)[0] for name in files]
         ds = load_dataset('HgThinker/Music_Gen', split='train').remove_columns(['start_s',
