@@ -34,7 +34,7 @@ class AudioDataset(Dataset):
                                                                                 'download_status']).to_pandas()
         new_df = ds.loc[ds['ytid'].isin(files_name)] #take a subset of the whole dataset
 
-        for index,row in new_df[:5].iterrows():
+        for index,row in new_df.iterrows():
             self.data_map.append(
                 {
                     "audio": os.path.abspath(os.path.join(self.data_dir,row['ytid']+".wav")),
@@ -199,7 +199,7 @@ def train(
             tokenized = model.lm.condition_provider.tokenize(conditions)
             cfg_conditions = model.lm.condition_provider(tokenized)
             condition_tensors = cfg_conditions
-            print(len(all_codes))
+            print("Number of audio codes: ",len(all_codes))
             if len(all_codes) == 0:
                 continue
 
