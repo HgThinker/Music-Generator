@@ -203,7 +203,7 @@ def train(
 
             codes = torch.cat(all_codes, dim=0)
 
-            with torch.autocast(device_type=device, dtype=torch.float16):
+            with torch.autocast(device_type="cuda", dtype=torch.float16):
                 lm_output = model.lm.compute_predictions(
                     codes=codes, conditions=[], condition_tensors=condition_tensors
                 )
