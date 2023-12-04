@@ -118,24 +118,17 @@ def train(
     use_cfg: bool = False
 ):
     os.system("wandb login 211aeb23439c9b5a37b08e1feced8296a50199bb")
-    # os.environ["WANDB_PROJECT"] = "Music-Generator"
-    model = MusicGen.get_pretrained(model_id)
-    model.lm = model.lm.to(torch.float32)# important
     if use_wandb:
-        run = wandb.init(project="Music-Generator",
-                         name=f"Music-Generator_v1",
-                         config={
-                            "epochs": epochs,
-                            "batch_size": batch_size,
-                            "lr": lr,
-                        })
-        wandb.watch(model)
+        run = wandb.init(project="audiocraft")
+
+    model = MusicGen.get_pretrained(model_id)
+    model.lm = model.lm.to(torch.float32)  # important
 
     dataset = AudioDataset()
     train_dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
     learning_rate = lr
-    
+    model.lm.train()
 
     scaler = torch.cuda.amp.GradScaler()
 
@@ -175,7 +168,6 @@ def train(
     current_step = 0
 
     for epoch in range(num_epochs):
-        model.lm.train()
         for batch_idx, (audio, label) in enumerate(train_dataloader):
             optimizer.zero_grad()
 
@@ -194,7 +186,7 @@ def train(
                     codes = inner_audio
 
                 all_codes.append(codes)
-                texts.append(l)
+                texts.append(open(l, "r").read().strip())
 
             attributes, _ = model._prepare_tokens_and_attributes(texts, None)
             conditions = attributes
@@ -204,7 +196,7 @@ def train(
             tokenized = model.lm.condition_provider.tokenize(conditions)
             cfg_conditions = model.lm.condition_provider(tokenized)
             condition_tensors = cfg_conditions
-            print("Number of audio codes: ",len(all_codes))
+
             if len(all_codes) == 0:
                 continue
 
@@ -280,5 +272,5 @@ def train(
                     torch.save(
                         model.lm.state_dict(), f"{save_path}/lm_{current_step}.pt"
                     )
-    wandb.finish()
+
     torch.save(model.lm.state_dict(), f"{save_path}/lm_final.pt")
