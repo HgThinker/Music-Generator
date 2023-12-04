@@ -120,7 +120,13 @@ def train(
     os.system("wandb login 211aeb23439c9b5a37b08e1feced8296a50199bb")
     # os.environ["WANDB_PROJECT"] = "Music-Generator"
     if use_wandb:
-        run = wandb.init(project="Music-Generator")
+        run = wandb.init(project="Music-Generator",
+                         name=f"Music-Generator_v1",
+                         config={
+                            "epochs": epochs,
+                            "batch_size": batch_size,
+                            "lr": lr,
+                        })
         wandb.watch(model)
 
     model = MusicGen.get_pretrained(model_id)
