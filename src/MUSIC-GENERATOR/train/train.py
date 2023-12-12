@@ -2,7 +2,6 @@ import torchaudio
 from audiocraft.models import MusicGen
 from transformers import get_scheduler
 import torch
-import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 from torch.optim import AdamW
@@ -38,7 +37,7 @@ class AudioDataset(Dataset):
             self.data_map.append(
                 {
                     "audio": os.path.abspath(os.path.join(self.data_dir,row['ytid']+".wav")),
-                    "label": row['caption']+ ' '.join([str(elem) for elem in row['aspect_list']]),
+                    "label": ', '.join([str(elem) for elem in row['aspect_list']]),
                 }
             )
 
