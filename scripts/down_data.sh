@@ -1,4 +1,4 @@
-cd ../MUSIC-GENERATOR
+cd ../Music-Generator
 cd data
 
 #download sample data
