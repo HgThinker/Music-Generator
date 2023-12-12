@@ -63,8 +63,8 @@ def preprocess_audio(audio_path, model: MusicGen, duration: int = 10):
     wav = torchaudio.functional.resample(wav, sr, model.sample_rate)
     
     # Chuẩn hóa âm lượng
-    transform = torchaudio.transforms.AmplitudeToDB(stype="amplitude", top_db=80)
-    wav = transform(wav)
+    # transform = torchaudio.transforms.AmplitudeToDB(stype="amplitude", top_db=80)
+    # wav = transform(wav)
     
     wav = wav.mean(dim=0, keepdim=True)
     if wav.shape[1] < model.sample_rate * duration:
