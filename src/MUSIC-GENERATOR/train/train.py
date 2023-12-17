@@ -2,12 +2,12 @@ import torchaudio
 from audiocraft.models import MusicGen
 from transformers import get_scheduler
 import torch
+import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 from torch.optim import AdamW
 import random
 import wandb
-from datasets import load_dataset, Audio, Dataset
 
 from torch.utils.data import Dataset
 
@@ -17,29 +17,23 @@ import os
 
 
 class AudioDataset(Dataset):
-    def __init__(self):
+    def __init__(self, data_dir):
+        self.data_dir = data_dir
         self.data_map = []
 
-        path_root = os.getcwd()
-        # self.data_dir = os.path.abspath(os.path.join(path_root ,"../..","data/music_data")) ##for colab
-        self.data_dir = os.path.abspath(os.path.join(path_root ,"data/music_data")) #for vsc
-        files = [f for f in os.listdir(self.data_dir ) if f.endswith(".wav")]
-        files_name = [os.path.splitext(name)[0] for name in files]
-        ds = load_dataset('HgThinker/Music_Gen', split='train').remove_columns(['start_s',
-                                                                                'end_s',
-                                                                                'audioset_positive_labels',
-                                                                                'is_balanced_subset',
-                                                                                'is_audioset_eval',
-                                                                                'download_status']).to_pandas()
-        new_df = ds.loc[ds['ytid'].isin(files_name)] #take a subset of the whole dataset
-
-        for index,row in new_df.iterrows():
-            self.data_map.append(
-                {
-                    "audio": os.path.abspath(os.path.join(self.data_dir,row['ytid']+".wav")),
-                    "label": ' '.join((row['aspect_list'].replace('[','').replace("'","").replace("]","")).split(", "))
-                }
-            )
+        dir_map = os.listdir(data_dir)
+        for d in dir_map:
+            name, ext = os.path.splitext(d)
+            if ext == ".wav":
+                if os.path.exists(os.path.join(data_dir, name + ".txt")):
+                    self.data_map.append(
+                        {
+                            "audio": os.path.join(data_dir, d),
+                            "label": os.path.join(data_dir, name + ".txt"),
+                        }
+                    )
+                else:
+                    raise ValueError(f"No label file for {name}")
 
     def __len__(self):
         return len(self.data_map)
@@ -47,7 +41,7 @@ class AudioDataset(Dataset):
     def __getitem__(self, idx):
         data = self.data_map[idx]
         audio = data["audio"]
-        label = data["label"]
+        label = data.get("label", "")
 
         return audio, label
 
@@ -61,20 +55,10 @@ def count_nans(tensor):
 def preprocess_audio(audio_path, model: MusicGen, duration: int = 30):
     wav, sr = torchaudio.load(audio_path)
     wav = torchaudio.functional.resample(wav, sr, model.sample_rate)
-    
-    # Chuẩn hóa âm lượng
-    # transform = torchaudio.transforms.AmplitudeToDB(stype="amplitude", top_db=80)
-    # wav = transform(wav)
-    
     wav = wav.mean(dim=0, keepdim=True)
     if wav.shape[1] < model.sample_rate * duration:
         return None
-    
-    
     end_sample = int(model.sample_rate * duration)
-    
-   
-        
     start_sample = random.randrange(0, max(wav.shape[1] - end_sample, 1))
     wav = wav[:, start_sample : start_sample + end_sample]
 
@@ -113,10 +97,12 @@ def one_hot_encode(tensor, num_classes=2048):
 
 
 def train(
+    dataset_path: str,
     model_id: str,
     lr: float,
     epochs: int,
     use_wandb: bool,
+    no_label: bool = False,
     tune_text: bool = False,
     save_step: int = None,
     grad_acc: int = 8,
@@ -126,14 +112,13 @@ def train(
     batch_size: int = 10,
     use_cfg: bool = False
 ):
-    os.system("wandb login 211aeb23439c9b5a37b08e1feced8296a50199bb")
     if use_wandb:
         run = wandb.init(project="audiocraft")
 
     model = MusicGen.get_pretrained(model_id)
     model.lm = model.lm.to(torch.float32)  # important
 
-    dataset = AudioDataset()
+    dataset = AudioDataset(dataset_path, no_label=no_label)
     train_dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
     learning_rate = lr
@@ -195,7 +180,7 @@ def train(
                     codes = inner_audio
 
                 all_codes.append(codes)
-                texts.append(l)
+                texts.append(open(l, "r").read().strip())
 
             attributes, _ = model._prepare_tokens_and_attributes(texts, None)
             conditions = attributes
@@ -219,7 +204,7 @@ def train(
                 codes = codes[0]
                 logits = lm_output.logits[0]
                 mask = lm_output.mask[0]
-                
+
                 codes = one_hot_encode(codes, num_classes=2048)
 
                 codes = codes.cuda()
