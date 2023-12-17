@@ -119,7 +119,7 @@ def train(
     model = MusicGen.get_pretrained(model_id)
     model.lm = model.lm.to(torch.float32)  # important
 
-    dataset = AudioDataset(dataset_path, no_label=no_label)
+    dataset = AudioDataset(dataset_path)
     train_dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
     learning_rate = lr
