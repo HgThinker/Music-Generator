@@ -113,6 +113,7 @@ def train(
     use_cfg: bool = False
 ):
     if use_wandb:
+        os.system("wandb login 211aeb23439c9b5a37b08e1feced8296a50199bb")
         run = wandb.init(project="audiocraft")
 
     model = MusicGen.get_pretrained(model_id)
