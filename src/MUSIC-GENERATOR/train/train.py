@@ -37,7 +37,7 @@ class AudioDataset(Dataset):
             self.data_map.append(
                 {
                     "audio": os.path.abspath(os.path.join(self.data_dir,row['ytid']+".wav")),
-                    "label": ', '.join([str(elem) for elem in row['aspect_list']]),
+                    "label": ' '.join((row['aspect_list'].replace('[','').replace("'","").replace("]","")).split(", "))
                 }
             )
 
@@ -219,7 +219,7 @@ def train(
                 codes = codes[0]
                 logits = lm_output.logits[0]
                 mask = lm_output.mask[0]
-
+                
                 codes = one_hot_encode(codes, num_classes=2048)
 
                 codes = codes.cuda()
