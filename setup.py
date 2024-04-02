@@ -24,5 +24,7 @@ setuptools.setup(
         'datasets',
         'yt-dlp',
         'ffmpeg',
+        'audiocraft',
+        'wandb',
     ]
 )
