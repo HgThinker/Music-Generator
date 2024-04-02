@@ -182,7 +182,6 @@ def train(
 
                 all_codes.append(codes)
                 texts.append(open(l, "r").read().strip())
-                print(texts)
 
             attributes, _ = model._prepare_tokens_and_attributes(texts, None)
             conditions = attributes
